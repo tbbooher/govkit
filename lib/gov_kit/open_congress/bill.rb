@@ -2,19 +2,19 @@ module GovKit
   module OpenCongress
     class Bill < OpenCongressObject
       attr_accessor :bill_type, :id, :introduced, :last_speech, :last_vote_date, :last_vote_roll, :last_vote_where, :last_action, :number, :plain_language_summary, :session, :sponsor, :co_sponsors, :title_full_common, :status, :most_recent_actions, :bill_titles, :recent_blogs, :recent_news, :ident
-      
+
       def initialize(params)
         super Bill, params
       end
-      
+
       def ident
         "#{session}-#{bill_type}#{number}"
       end
-    
+
       def self.find(params)
 
         url = construct_url("bills", params)
-      
+
         if (result = make_call(url))
           parse_results(result)
         else
@@ -22,7 +22,7 @@ module GovKit
         end
 
       end
-    
+
       def self.most_blogged_bills_this_week
         url = construct_url("most_blogged_bills_this_week", {})
         if (result = make_call(url))
@@ -30,7 +30,7 @@ module GovKit
           return bills
         else
           nil
-        end      
+        end
       end
 
       def self.bills_in_the_news_this_week
@@ -40,7 +40,7 @@ module GovKit
           return bills
         else
           nil
-        end      
+        end
       end
 
       def self.most_tracked_bills_this_week
@@ -50,7 +50,7 @@ module GovKit
           return bills
         else
           nil
-        end      
+        end
       end
 
       def self.most_supported_bills_this_week
@@ -60,7 +60,7 @@ module GovKit
           return bills
         else
           nil
-        end      
+        end
       end
 
       def self.most_opposed_bills_this_week
@@ -70,18 +70,18 @@ module GovKit
           return bills
         else
           nil
-        end      
+        end
       end
-    
+
       def self.find_by_query(q)
         url = Bill.construct_url("bills_by_query", {:q => q})
-      
+
         if (result = make_call(url))
           bills = parse_results(result)
         else
           nil
         end
-      end          
+      end
 
       def self.find_by_idents(idents)
         q = []
@@ -90,15 +90,15 @@ module GovKit
         else
           q = idents.split(',')
         end
-      
+
         url = Bill.construct_url("bills_by_ident", {:ident => q.join(',')})
-      
+
         if (result = make_call(url))
           bills = parse_results(result)
         else
           nil
         end
-      end   
+      end
 
       def opencongress_users_supporting_bill_are_also
         url = Bill.construct_url("opencongress_users_supporting_bill_are_also/#{ident}", {})
@@ -119,13 +119,13 @@ module GovKit
           nil
         end
       end
-    
+
       def self.parse_results(result)
-      
+
         bills = []
         if Hash === result
           result["bills"].each do |bill|
-            bill = bill['bill']
+            #bill = bill['bill']
 
             these_recent_blogs = bill["recent_blogs"]
             blogs = []
@@ -137,7 +137,6 @@ module GovKit
             end
 
             bill["recent_blogs"] = blogs
-
 
             these_recent_news = bill["recent_news"]
             news = []

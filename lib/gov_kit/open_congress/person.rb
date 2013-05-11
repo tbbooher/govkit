@@ -1,17 +1,17 @@
 module GovKit
   module OpenCongress
-  
+
     class Person < OpenCongressObject
-    
+
       attr_accessor :firstname, :lastname, :bioguideid, :birthday, :district, :email, :gender, :id, :metavid_id, :middlename,
                     :name, :nickname, :osid, :party, :religion, :state, :title, :unaccented_name, :url, :user_approval,
                     :youtube_id, :oc_user_comments, :oc_users_tracking, :abstains_percentage, :with_party_percentage, :recent_news,
                     :recent_blogs, :person_stats
-      
+
       def initialize(params)
         super Person, params
       end
-    
+
       def self.find(params)
 
         url = construct_url("people", params)
@@ -31,7 +31,7 @@ module GovKit
         else
           nil
         end
-      
+
       end
 
       def self.senators_most_in_the_news_this_week
@@ -81,7 +81,7 @@ module GovKit
         end
 
       end
-    
+
       def opencongress_users_supporting_person_are_also
         url = Person.construct_url("opencongress_users_supporting_person_are_also/#{id}", {})
         if (result = Person.make_call(url))
@@ -104,39 +104,42 @@ module GovKit
 
       def self.parse_results(result)
 
-          people = []
-          if Hash === result
-            result["people"].each do |person|
-              person = person['person']
-
-              these_recent_blogs = person["recent_blogs"]
-              blogs = []
-              these_recent_blogs.each do |trb|
-                blogs << BlogPost.new(trb)
-              end
-              person["recent_blogs"] = blogs
-
-              these_recent_news = person["recent_news"]
-              news = []
-              these_recent_news.each do |trb|
-                news << NewsPost.new(trb)
-              end
-
-              person["person_stats"] = PersonStat.new(person["person_stats"]) if person["person_stats"]
-
-              person["recent_news"] = news
-
-              people << Person.new(person)
+        people = []
+        if Hash === result
+          result["people"].each do |person|
+            #person = person['person']
+            #puts "********************"
+            #puts person.inspect
+            #puts "********************"
+            # replace recent blogs with a BlogPost object
+            these_recent_blogs = person["recent_blogs"]
+            blogs = []
+            these_recent_blogs.each do |trb|
+              blogs << BlogPost.new(trb)
             end
-          end
+            person["recent_blogs"] = blogs
 
-          people
-            
-      end    
-      
-      
+            # do the same for recent news
+            these_recent_news = person["recent_news"]
+            news = []
+            these_recent_news.each do |trb|
+              news << NewsPost.new(trb)
+            end
+            person["recent_news"] = news
+
+            person["person_stats"] = PersonStat.new(person["person_stats"]) if person["person_stats"]
+
+            people << Person.new(person)
+          end
+        end
+
+        people
+
+      end
+
+
     end
-  
-  
+
+
   end
 end
